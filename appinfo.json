@@ -13,8 +13,8 @@
     "capabilities": [
         "configurable"
     ],
-    "companyName": "John Costik",
-    "longName": "Simple CGM Spark",
+    "companyName": "Kevin Conroy",
+    "longName": "DEV CGM Spark",
     "projectType": "native",
     "resources": {
         "media": [
@@ -73,15 +73,15 @@
         ]
     },
     "sdkVersion": "3",
-    "shortName": "SimpleCGMSpark",
+    "shortName": "DevSimpleCGMSpark",
     "targetPlatforms": [
         "basalt",
         "aplite",
         "chalk"
     ],
 
-    "uuid": "58d2a91c-9489-4cde-8f7b-59f066a98462",
-    "versionLabel": "2.0",
+    "uuid": "6e5a7df9-b9a5-45dc-8ec4-da5df9ac0015", 
+    "versionLabel": "2.1",
     "watchapp": {
         "watchface": true
     }

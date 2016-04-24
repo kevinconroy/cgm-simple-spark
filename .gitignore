@@ -32,3 +32,8 @@
 *.dSYM/
 
 **/build 
+.cproject
+.project
+.lock*
+dist
+node_modules
