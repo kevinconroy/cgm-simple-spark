@@ -152,14 +152,28 @@ void send_cmd_connect() {
     send_int(5, data_id);
 }
 
+
+/**
+ * This method updates the time_delta_str text field to display the "loading..." message. If it a retry, it will
+ * print the retry count. If it is one of the first two attempts, it will simply do an ellipsis as it will often
+ * work within the first two calls.
+ */
+void displayLoadingText(int count) {
+    if (count <= 1) {
+        snprintf(time_delta_str, 12, "loading...");
+    } else {
+        snprintf(time_delta_str, 12, "loading(%d)", count);
+    }
+}
+
+
 void send_cmd() {
     //APP_LOG(APP_LOG_LEVEL_INFO, "send_cmd");
 
     if (s_canvas_layer) {
         gbitmap_destroy(icon_bitmap);
-        // print check(#) message
 
-        snprintf(time_delta_str, 12, "loading... (%d)", check_count++);
+        displayLoadingText(check_count++);
 
         // if we've tried loading more than once, that means there's some network/connection issue
         if (check_count > 1) {
@@ -256,7 +270,8 @@ static void clock_refresh(struct tm * tick_time) {
  */
 static void tick_handler(struct tm * tick_time, TimeUnits changed) {
     if (!has_launched) {
-        snprintf(time_delta_str, 12, "loading... (%d)", check_count + 1);
+    
+        displayLoadingText(check_count + 1);
 
         if (time_delta_layer) {
             text_layer_set_text(time_delta_layer, time_delta_str);
