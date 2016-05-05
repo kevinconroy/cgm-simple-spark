@@ -12,6 +12,7 @@
 
 #define ANTIALIASING true
 #define SNOOZE_KEY 1
+#define LAYOUT_COSTIK 0
 
 typedef struct {
     int hours;
@@ -713,7 +714,12 @@ static void window_load(Window * window) {
     Layer * window_layer = window_get_root_layer(window);
     GRect window_bounds = layer_get_bounds(window_layer);
 
+#if LAYOUT_COSTIK
     int offset = 24 / 2;
+#else
+    int offset = (24 / 2) - 6;
+#endif
+
     GRect inner_bounds = GRect(0, 24, 144, 144);
     s_center = grect_center_point(&inner_bounds);
 
@@ -733,16 +739,33 @@ static void window_load(Window * window) {
     text_layer_set_text_alignment(time_delta_layer, GTextAlignmentCenter);
     text_layer_set_text_alignment(delta_layer, GTextAlignmentCenter);
 #else
+    // placement of text layers
+    #if LAYOUT_COSTIK
+    /** Costik's settings **/
     icon_layer = bitmap_layer_create(GRect(106, 34 + offset, 30, 30));
     bg_layer = text_layer_create(GRect(8, 17 + offset, 100, 75));
     delta_layer = text_layer_create(GRect(4, 74, 136, 25));
     time_delta_layer = text_layer_create(GRect(4, 21, 136, 25));
-    time_layer = text_layer_create(GRect(0, -2, 144, 25));
+    time_layer = text_layer_create(GRect(0, 2, 144, 25));
     chart_layer = chart_layer_create((GRect ) {
                     .origin = { 4, 102 },
                     .size = { 136, 62 } });
     text_layer_set_text_alignment(time_delta_layer, GTextAlignmentRight);
     text_layer_set_text_alignment(delta_layer, GTextAlignmentRight);
+    #else
+    /** Conroy's settings **/
+    icon_layer = bitmap_layer_create(GRect(106, 34 + offset, 30, 30));
+    bg_layer = text_layer_create(GRect(8, 17 + offset, 100, 75));
+
+    time_delta_layer = text_layer_create(GRect(6, 74, 66, 25));
+    delta_layer = text_layer_create(GRect(72, 74, 68, 25));
+
+    time_layer = text_layer_create(GRect(0, 2, 144, 25));
+    chart_layer = chart_layer_create((GRect ) { .origin = { 4, 102 }, .size = { 136, 62 } });
+
+    text_layer_set_text_alignment(time_delta_layer, GTextAlignmentLeft);
+    text_layer_set_text_alignment(delta_layer, GTextAlignmentRight);
+    #endif
 #endif  
     bitmap_layer_set_background_color(icon_layer, GColorClear);
     safe_bitmap_layer_set_compositing_mode(icon_layer, GCompOpClear);
