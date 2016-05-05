@@ -24,7 +24,19 @@
                 "name": "FONT_HN_BOLD_48",
                 "type": "font"
             },
-            
+                      
+            {          
+                "file": "fonts/Helvetica.ttf",
+                "name": "FONT_HN_BOLD_16",
+                "type": "font"
+            },
+                      
+            {          
+                "file": "fonts/Lato-Black.ttf",
+                "name": "FONT_LATO_BOLD_18",
+                "type": "font"
+            },
+                      
             {
                 "file": "images/up.png",
                 "name": "IMAGE_UP",

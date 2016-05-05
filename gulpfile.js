@@ -5,6 +5,13 @@ var del = require('del');
 var minimist = require('minimist');
 var fs = require('fs');
 
+/**
+ * Customize these variables
+ */
+//var developerIpAddress = "192.168.0.105";
+var developerIpAddress = "192.168.1.77";
+
+
 gulp.task('watch',function(){
 	gulp.watch(
 		["src/*"],
@@ -15,7 +22,7 @@ gulp.task('watch',function(){
 
 gulp.task('build', shell.task(['pebble build']));
 
-gulp.task('install', shell.task(['pebble install --phone 192.168.0.105']));
+gulp.task('install', shell.task(['pebble install --phone ' + developerIpAddress])); 
 
 gulp.task('default', gulp.series("build", "install", "watch"));
 
