@@ -8,6 +8,7 @@
 #include <pebble_chart.h>
 #include <data-processor.h>
 #include <cgm_info.h>
+#include <pebble_utils.h>
 
 #define ANTIALIASING true
 #define SNOOZE_KEY 1
@@ -370,34 +371,20 @@ static void update_proc(Layer * layer, GContext * ctx) {
     //     if(time_layer)
     //         text_layer_set_text_color(time_layer, GColorBlack);
     // }
-    // Change clockface
+    // Change clockface colors
+    // if we are on a non-red face, use black
     if (s_color_channels[0] < 255) {
         //OKAY      
-        if (bg_layer) {
-            text_layer_set_text_color(bg_layer, GColorBlack);
-        }
-        if (delta_layer) {
-            text_layer_set_text_color(delta_layer, GColorBlack);
-        }
-        if (time_delta_layer) {
-            text_layer_set_text_color(time_delta_layer, GColorBlack);
-        }
-        if (icon_layer) {
-            bitmap_layer_set_compositing_mode(icon_layer, GCompOpClear);
-        }
+        safe_text_layer_set_text_color(bg_layer, GColorBlack);
+        safe_text_layer_set_text_color(delta_layer, GColorBlack);
+        safe_text_layer_set_text_color(time_delta_layer, GColorBlack);
+        safe_bitmap_layer_set_compositing_mode(icon_layer, GCompOpClear);
     } else {
-        if (bg_layer) {
-            text_layer_set_text_color(bg_layer, GColorWhite);
-        }
-        if (delta_layer) {
-            text_layer_set_text_color(delta_layer, GColorWhite);
-        }
-        if (time_delta_layer) {
-            text_layer_set_text_color(time_delta_layer, GColorWhite);
-        }
-        if (icon_layer) {
-            bitmap_layer_set_compositing_mode(icon_layer, GCompOpOr);
-        }
+        // in an error state, invert text color to white
+        safe_text_layer_set_text_color(bg_layer, GColorWhite);
+        safe_text_layer_set_text_color(delta_layer, GColorWhite);
+        safe_text_layer_set_text_color(time_delta_layer, GColorWhite);
+        safe_bitmap_layer_set_compositing_mode(icon_layer, GCompOpOr);
     }
     // graphics_fill_rect(ctx, GRect(0, 24, 144, 74), 0, GCornerNone);
 #endif
@@ -411,9 +398,7 @@ static void reset_background() {
     b_color_channels[0] = 0;
     b_color_channels[1] = 0;
     b_color_channels[2] = 0;
-    if (time_layer) {
-        text_layer_set_text_color(time_layer, GColorBlack);
-    }
+    safe_text_layer_set_text_color(time_layer, GColorBlack);
     if (chart_layer) {
         chart_layer_set_canvas_color(chart_layer, GColorBlack);
     }
@@ -448,35 +433,25 @@ static void process_alert() {
 
             //APP_LOG(APP_LOG_LEVEL_DEBUG, "Alert key: %i", LOSS_MID_NO_NOISE);
 #if defined(PBL_COLOR)
-            text_layer_set_text_color(bg_layer, GColorBlack);
+            safe_text_layer_set_text_color(bg_layer, GColorBlack);
 #ifdef PBL_PLATFORM_CHALK 
-            if(bg_layer)
-            text_layer_set_text_color(bg_layer, GColorBlack);
-            if(delta_layer)
-            text_layer_set_text_color(delta_layer, GColorBlack);
-            if(time_delta_layer)
-            text_layer_set_text_color(time_delta_layer, GColorBlack);
+            safe_text_layer_set_text_color(bg_layer, GColorBlack);
+            safe_text_layer_set_text_color(delta_layer, GColorBlack);
+            safe_text_layer_set_text_color(time_delta_layer, GColorBlack);
 #else 
-            if(bg_layer)
-            text_layer_set_text_color(bg_layer, GColorBlack);
-            if(delta_layer)
-            text_layer_set_text_color(delta_layer, GColorBlack);
-            if(time_delta_layer)
-            text_layer_set_text_color(time_delta_layer, GColorBlack);
+            safe_text_layer_set_text_color(bg_layer, GColorBlack);
+            safe_text_layer_set_text_color(delta_layer, GColorBlack);
+            safe_text_layer_set_text_color(time_delta_layer, GColorBlack);
 #endif
-            bitmap_layer_set_compositing_mode(icon_layer, GCompOpClear);
+            safe_bitmap_layer_set_compositing_mode(icon_layer, GCompOpClear);
 #elif defined(PBL_BW)
             s_color_channels[0] = 170;
             s_color_channels[1] = 170;
             s_color_channels[2] = 170;
-            if(bg_layer)
-            text_layer_set_text_color(bg_layer, GColorBlack);
-            if(delta_layer)
-            text_layer_set_text_color(delta_layer, GColorBlack);
-            if(time_delta_layer)
-            text_layer_set_text_color(time_delta_layer, GColorBlack);
-            if(icon_layer)
-            bitmap_layer_set_compositing_mode(icon_layer, GCompOpClear);
+            safe_text_layer_set_text_color(bg_layer, GColorBlack);
+            safe_text_layer_set_text_color(delta_layer, GColorBlack);
+            safe_text_layer_set_text_color(time_delta_layer, GColorBlack);
+            safe_bitmap_layer_set_compositing_mode(icon_layer, GCompOpClear);
 #endif
 
             break;
@@ -487,31 +462,20 @@ static void process_alert() {
             s_color_channels[1] = 0;
             s_color_channels[2] = 0;
 
-            if (vibe_state > 0 && !is_snoozed())
+            if (vibe_state > 0 && !is_snoozed()) {
                 vibes_long_pulse();
+            }
 
 #ifdef PBL_PLATFORM_CHALK
-            if(delta_layer) {
-                text_layer_set_text_color(delta_layer, GColorBlack);
-            }
-            if(time_delta_layer) {
-                text_layer_set_text_color(time_delta_layer, GColorBlack);
-            }
+            safe_text_layer_set_text_color(delta_layer, GColorBlack);
+            safe_text_layer_set_text_color(time_delta_layer, GColorBlack);
 #else   
-            if (delta_layer) {
-                text_layer_set_text_color(delta_layer, GColorWhite);
-            }
-            if (time_delta_layer) {
-                text_layer_set_text_color(time_delta_layer, GColorWhite);
-            }
+            safe_text_layer_set_text_color(delta_layer, GColorWhite);
+            safe_text_layer_set_text_color(time_delta_layer, GColorWhite);
 #endif
 
-            if (bg_layer) {
-                text_layer_set_text_color(bg_layer, GColorWhite);
-            }
-            if (icon_layer) {
-                bitmap_layer_set_compositing_mode(icon_layer, GCompOpOr);
-            }
+            safe_text_layer_set_text_color(bg_layer, GColorWhite);
+            safe_bitmap_layer_set_compositing_mode(icon_layer, GCompOpOr);
             break;
 
         case OKAY:
@@ -521,25 +485,20 @@ static void process_alert() {
             s_color_channels[1] = 255;
             s_color_channels[2] = 0;
 
-        if (vibe_state > 1 && !is_snoozed())
-                    vibes_double_pulse();
+            if (vibe_state > 1 && !is_snoozed()) {
+                vibes_double_pulse();
+            }
 
             //APP_LOG(APP_LOG_LEVEL_DEBUG, "Alert key: %i", OKAY);
-            if (bg_layer)
-                text_layer_set_text_color(bg_layer, GColorBlack);
+            safe_text_layer_set_text_color(bg_layer, GColorBlack);
 #ifdef PBL_PLATFORM_CHALK
-            if(delta_layer)
-            text_layer_set_text_color(delta_layer, GColorBlack);
-            if(time_delta_layer)
-            text_layer_set_text_color(time_delta_layer, GColorBlack);
+            safe_text_layer_set_text_color(delta_layer, GColorBlack);
+            safe_text_layer_set_text_color(time_delta_layer, GColorBlack);
 #else   
-            if (delta_layer)
-                text_layer_set_text_color(delta_layer, GColorBlack);
-            if (time_delta_layer)
-                text_layer_set_text_color(time_delta_layer, GColorBlack);
+            safe_text_layer_set_text_color(delta_layer, GColorBlack);
+            safe_text_layer_set_text_color(time_delta_layer, GColorBlack);
 #endif
-            if (icon_layer)
-                bitmap_layer_set_compositing_mode(icon_layer, GCompOpClear);
+            safe_bitmap_layer_set_compositing_mode(icon_layer, GCompOpClear);
             break;
 
         case OLD_DATA:
@@ -553,21 +512,15 @@ static void process_alert() {
             s_color_channels[2] = 255;
 
 #ifdef PBL_PLATFORM_CHALK
-            if(delta_layer)
-            text_layer_set_text_color(delta_layer, GColorBlack);
-            if(time_delta_layer)
-            text_layer_set_text_color(time_delta_layer, GColorBlack);
-#else   
-            if (delta_layer)
-                text_layer_set_text_color(delta_layer, GColorWhite);
-            if (time_delta_layer)
-                text_layer_set_text_color(time_delta_layer, GColorWhite);
+            safe_text_layer_set_text_color(delta_layer, GColorBlack);
+            safe_text_layer_set_text_color(time_delta_layer, GColorBlack);
+#else
+            safe_text_layer_set_text_color(delta_layer, GColorWhite);
+            safe_text_layer_set_text_color(time_delta_layer, GColorWhite);
 #endif
 
-            if (icon_layer)
-                bitmap_layer_set_compositing_mode(icon_layer, GCompOpOr);
-            if (bg_layer)
-                text_layer_set_text_color(bg_layer, GColorWhite);
+            safe_bitmap_layer_set_compositing_mode(icon_layer, GCompOpOr);
+            safe_text_layer_set_text_color(bg_layer, GColorWhite);
 
             break;
 
@@ -581,8 +534,9 @@ static void process_alert() {
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
     check_count = 0;
     //APP_LOG(APP_LOG_LEVEL_INFO, "Message received!");
-    if (time_delta_layer)
+    if (time_delta_layer) {
         text_layer_set_text(time_delta_layer, "in...");
+    }
 
     // Get the first pair
     Tuple *new_tuple = dict_read_first(iterator);
@@ -604,17 +558,13 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 
             case CGM_EGV_DELTA_KEY:
                 ;
-                if (delta_layer)
-                    text_layer_set_text(delta_layer, new_tuple->value->cstring);
+                safe_text_layer_set_text(delta_layer, new_tuple->value->cstring);
                 break;
 
             case CGM_EGV_KEY:
                 ;
                 cgm_data_set_egv(cgm_data, new_tuple->value->cstring);
-
-                if (bg_layer)
-                    text_layer_set_text(bg_layer, cgm_data_get_egv(cgm_data));
-
+                safe_text_layer_set_text(bg_layer, cgm_data_get_egv(cgm_data));
                 strncpy(last_bg, new_tuple->value->cstring, 124);
                 break;
 
@@ -624,8 +574,9 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
                     gbitmap_destroy(icon_bitmap);
                 }
                 icon_bitmap = gbitmap_create_with_resource(CGM_ICONS[new_tuple->value->uint8]);
-                if (icon_layer)
+                if (icon_layer) {
                     bitmap_layer_set_bitmap(icon_layer, icon_bitmap);
+                }
                 break;
 
             case CGM_ALERT_KEY:
@@ -719,21 +670,14 @@ static void inbox_dropped_callback(AppMessageResult reason, void *context) {
     s_color_channels[1] = 0;
     s_color_channels[2] = 255;
 
-    if (time_delta_layer)
-        text_layer_set_text_color(time_delta_layer, GColorBlack);
-    if (icon_layer)
-        bitmap_layer_set_compositing_mode(icon_layer, GCompOpClear);
-    if (bg_layer)
-        text_layer_set_text_color(bg_layer, GColorBlack);
-    if (delta_layer)
-        text_layer_set_text_color(delta_layer, GColorBlack);
+    safe_text_layer_set_text_color(time_delta_layer, GColorBlack);
+    safe_bitmap_layer_set_compositing_mode(icon_layer, GCompOpClear);
+    safe_text_layer_set_text_color(bg_layer, GColorBlack);
+    safe_text_layer_set_text_color(delta_layer, GColorBlack);
 
     snprintf(time_delta_str, 12, "in-err(%d)", t_delta);
-    if (bg_layer)
-        text_layer_set_text(bg_layer, translate_error(reason));
-
-    if (time_delta_layer)
-        text_layer_set_text(time_delta_layer, time_delta_str);
+    safe_text_layer_set_text(bg_layer, translate_error(reason));
+    safe_text_layer_set_text(time_delta_layer, time_delta_str);
 
     comm_alert();
 
@@ -744,22 +688,16 @@ static void outbox_failed_callback(DictionaryIterator *iterator, AppMessageResul
     s_color_channels[1] = 0;
     s_color_channels[2] = 255;
 
-    if (time_delta_layer)
-        text_layer_set_text_color(time_delta_layer, GColorBlack);
-    if (icon_layer)
-        bitmap_layer_set_compositing_mode(icon_layer, GCompOpClear);
-    if (bg_layer)
-        text_layer_set_text_color(bg_layer, GColorBlack);
-    if (delta_layer)
-        text_layer_set_text_color(delta_layer, GColorBlack);
+    safe_text_layer_set_text_color(time_delta_layer, GColorBlack);
+    safe_bitmap_layer_set_compositing_mode(icon_layer, GCompOpClear);
+    safe_text_layer_set_text_color(bg_layer, GColorBlack);
+    safe_text_layer_set_text_color(delta_layer, GColorBlack);
 
     snprintf(time_delta_str, 12, "out-err(%d)", t_delta);
 
-    if (bg_layer)
-        text_layer_set_text(bg_layer, translate_error(reason));
+    safe_text_layer_set_text(bg_layer, translate_error(reason));
 
-    if (time_delta_layer)
-        text_layer_set_text(time_delta_layer, time_delta_str);
+    safe_text_layer_set_text(time_delta_layer, time_delta_str);
     comm_alert();
 
 }
@@ -768,8 +706,10 @@ static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
     //APP_LOG(APP_LOG_LEVEL_INFO, "out sent callback");
 }
 
+/**
+ * This method handles the actual layout of the main screen.
+ */
 static void window_load(Window * window) {
-
     Layer * window_layer = window_get_root_layer(window);
     GRect window_bounds = layer_get_bounds(window_layer);
 
@@ -792,7 +732,7 @@ static void window_load(Window * window) {
                 .size = {154, 46}});
     text_layer_set_text_alignment(time_delta_layer, GTextAlignmentCenter);
     text_layer_set_text_alignment(delta_layer, GTextAlignmentCenter);
-#else 
+#else
     icon_layer = bitmap_layer_create(GRect(106, 34 + offset, 30, 30));
     bg_layer = text_layer_create(GRect(8, 17 + offset, 100, 75));
     delta_layer = text_layer_create(GRect(4, 74, 136, 25));
@@ -805,33 +745,36 @@ static void window_load(Window * window) {
     text_layer_set_text_alignment(delta_layer, GTextAlignmentRight);
 #endif  
     bitmap_layer_set_background_color(icon_layer, GColorClear);
-    bitmap_layer_set_compositing_mode(icon_layer, GCompOpClear);
+    safe_bitmap_layer_set_compositing_mode(icon_layer, GCompOpClear);
     layer_add_child(s_canvas_layer, bitmap_layer_get_layer(icon_layer));
 
-    text_layer_set_text_color(bg_layer, GColorBlack);
+    safe_text_layer_set_text_color(bg_layer, GColorBlack);
     text_layer_set_background_color(bg_layer, GColorClear);
     text_layer_set_font(bg_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_HN_BOLD_48)));
     text_layer_set_text_alignment(bg_layer, GTextAlignmentCenter);
     layer_add_child(s_canvas_layer, text_layer_get_layer(bg_layer));
 
-    text_layer_set_text_color(delta_layer, GColorBlack);
+    safe_text_layer_set_text_color(delta_layer, GColorBlack);
     text_layer_set_background_color(delta_layer, GColorClear);
+    //text_layer_set_font(delta_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_HN_BOLD_16)));
     text_layer_set_font(delta_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
     layer_add_child(s_canvas_layer, text_layer_get_layer(delta_layer));
 
-    text_layer_set_text_color(time_delta_layer, GColorWhite);
+    safe_text_layer_set_text_color(time_delta_layer, GColorWhite);
     text_layer_set_background_color(time_delta_layer, GColorClear);
+    //text_layer_set_font(time_delta_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_HN_BOLD_16)));
     text_layer_set_font(time_delta_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
     layer_add_child(s_canvas_layer, text_layer_get_layer(time_delta_layer));
 
-    text_layer_set_text_color(time_layer, GColorBlack);
+    safe_text_layer_set_text_color(time_layer, GColorBlack);
     text_layer_set_background_color(time_layer, GColorClear);
-    // 
 
 #ifdef PBL_PLATFORM_CHALK   
-    text_layer_set_font(time_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
+    //text_layer_set_font(time_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
+    text_layer_set_font(time_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_LATO_BOLD_18)));
 #else 
-    text_layer_set_font(time_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
+    //text_layer_set_font(time_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
+    text_layer_set_font(time_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_LATO_BOLD_18)));
 #endif
 
     text_layer_set_text_alignment(time_layer, GTextAlignmentCenter);
